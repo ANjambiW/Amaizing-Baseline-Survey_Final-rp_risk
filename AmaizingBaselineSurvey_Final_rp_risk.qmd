@@ -1,0 +1,659 @@
+---
+title: "Amaizing  Baseline Survey_Final-rp_risk"
+author: "Njambi"
+format: html
+editor: visual
+---
+
+## 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+## Clear the environment
+
+```{r}
+
+rm(list = ls())
+
+```
+
+## Loading necessary libraries
+
+```{r, include=FALSE}
+
+library(tidyverse) # includes the dplyr, ggplot2, tidyr, readr, stringr, forcats, tibble packages
+library(readxl)
+library(Hmisc)
+library(labelled)
+library(magrittr)
+library(datawizard)
+library(gtsummary)
+library(gt)
+library(kableExtra)
+library(flextable)
+library(splitstackshape)
+library(lubridate)
+library(foreign)
+library(haven)
+
+
+```
+
+## Set the working directory
+
+```{r}
+# Set working directory
+
+setwd("C:\\Users\\awanjau\\OneDrive - CGIAR\\Alliance\\Alliance_2024\\AMAZING\\AmazingBaselineDataCleaning\\Amaizing  Baseline Survey_Final-rp_risk")
+      
+```
+
+## Loading data
+
+```{r}
+# Read a csv file
+
+aMaizingBL_risks_path <- "C:\\Users\\awanjau\\OneDrive - CGIAR\\Alliance\\Alliance_2024\\AMAZING\\aMaizingBaseline_Files\\Amaizing  Baseline Survey_Final-rp_risk.csv"
+
+aMaizingBL_risks <- read_csv(aMaizingBL_risks_path)
+
+head(aMaizingBL_risks)
+```
+
+```{r}
+# Check number of rows and columns in data
+
+dim(aMaizingBL_risks)
+
+# Print column names
+
+names(aMaizingBL_risks)
+```
+
+```{r}
+class(aMaizingBL_risks$riskindex1)
+
+sort(unique(aMaizingBL_risks$riskindex1), na.last = TRUE)
+```
+
+```{r}
+aMaizingBL_risks <- aMaizingBL_risks %>%
+  mutate(
+    riskindex1 = as.integer(riskindex1)
+  )
+
+class(aMaizingBL_risks$riskindex1)
+```
+
+```{r}
+class(aMaizingBL_risks$riskindex2)
+
+sort(unique(aMaizingBL_risks$riskindex2), na.last = TRUE)
+```
+
+```{r}
+
+risk_levels <- c(
+  
+ "Drought",	"Excessive Rainfall",	"Pests",	"Diseases",	"Floods",	"Animals",	"Fire",	"Bird",	"Frost",	"Hail", 	"Theft", 	"High input price",	"Input shortages",	"Commodity price fluctuations",	"Lack of market",	"Other, Specify"
+
+                         )  
+
+aMaizingBL_risks <- aMaizingBL_risks %>%
+  mutate(
+    riskindex2 = factor(
+      riskindex2, 
+      levels = c(1:15, -222), 
+      labels = risk_levels
+    )
+  
+  ) 
+
+class(aMaizingBL_risks$riskindex2)
+unique(aMaizingBL_risks$riskindex2)
+```
+
+```{r}
+class(aMaizingBL_risks$riskname)
+
+#sort(unique(aMaizingBL_risks$riskname), na.last = TRUE)
+```
+
+```{r}
+
+aMaizingBL_risks <- aMaizingBL_risks %>%
+  mutate(
+    riskname = factor(riskname)
+  
+  ) 
+
+class(aMaizingBL_risks$riskname)
+#unique(aMaizingBL_risks$riskname)
+
+# Not cleaned; includes text from "Other, Specify"
+```
+
+```{r}
+class(aMaizingBL_risks$f31)
+
+sort(unique(aMaizingBL_risks$f31), na.last = TRUE)
+```
+
+1 Every year 2 Every two years 3 Every three years 4 More than three years
+
+```{r}
+
+risk_freq_levels <- c(
+  
+ "Every year",	"Every two years",	"Every three years",	"More than three years"
+
+                         )  
+
+aMaizingBL_risks <- aMaizingBL_risks %>%
+  mutate(
+    f31 = factor(
+      f31, 
+      levels = c(1:4), 
+      labels = risk_freq_levels ,
+      ordered = TRUE
+    )
+  
+  ) 
+
+class(aMaizingBL_risks$f31)
+unique(aMaizingBL_risks$f31)
+```
+
+***Reverse code f31 and convert to ordinal***
+
+```{r}
+
+aMaizingBL_risks <- aMaizingBL_risks %>%
+  mutate(
+    f31_reversed = factor(
+      f31, 
+     # levels = rev(levels(f31)),  # Reverse the levels while keeping the labels intact
+      levels = rev(levels(f31)) ,  # Reverse the levels
+     # labels = rev(risk_freq_levels),  # Reverse the labels to match reversed levels
+      ordered = TRUE   
+    )
+  )
+
+class(aMaizingBL_risks$f31_reversed)
+unique(aMaizingBL_risks$f31_reversed)
+```
+
+```{r}
+class(aMaizingBL_risks$f32)
+
+sort(unique(aMaizingBL_risks$f32), na.last = TRUE)
+```
+
+1 Slightly (1 -19%) 2 Moderately ( 20%-49%) 3 Severe (50%-74%) 4 Extremely (75%-100%)
+
+```{r}
+
+severity_levels <- c(
+  
+ "Slightly (1 -19%)",	"Moderately ( 20%-49%)",	"Severe (50%-74%)",	"Extremely (75%-100%)"
+
+                         )  
+
+aMaizingBL_risks <- aMaizingBL_risks %>%
+  mutate(
+    f32 = factor(
+      f32, 
+      levels = c(1:4), 
+      labels = severity_levels ,
+      ordered = TRUE
+    )
+  
+  ) 
+
+class(aMaizingBL_risks$f32)
+unique(aMaizingBL_risks$f32)
+```
+
+```{r}
+class(aMaizingBL_risks$f33)
+
+#sort(unique(aMaizingBL_risks$f33), na.last = TRUE)
+
+# Character
+# Multi-select
+```
+
+```{r}
+class(aMaizingBL_risks$f33_1)
+
+sort(unique(aMaizingBL_risks$f33_1), na.last = TRUE)
+
+```
+
+```{r}
+aMaizingBL_risks <- aMaizingBL_risks %>%
+  mutate(
+    f33_1 = as.integer(f33_1)
+  )
+
+class(aMaizingBL_risks$f33_1)
+```
+
+```{r}
+class(aMaizingBL_risks$f33_2)
+
+sort(unique(aMaizingBL_risks$f33_2), na.last = TRUE)
+
+```
+
+```{r}
+aMaizingBL_risks <- aMaizingBL_risks %>%
+  mutate(
+    f33_2 = as.integer(f33_2)
+  )
+
+class(aMaizingBL_risks$f33_2)
+```
+
+```{r}
+class(aMaizingBL_risks$f33_3)
+
+sort(unique(aMaizingBL_risks$f33_3), na.last = TRUE)
+
+```
+
+```{r}
+aMaizingBL_risks <- aMaizingBL_risks %>%
+  mutate(
+    f33_3 = as.integer(f33_3)
+  )
+
+class(aMaizingBL_risks$f33_3)
+```
+
+```{r}
+class(aMaizingBL_risks$f33_4)
+
+sort(unique(aMaizingBL_risks$f33_4), na.last = TRUE)
+
+```
+
+```{r}
+aMaizingBL_risks <- aMaizingBL_risks %>%
+  mutate(
+    f33_4 = as.integer(f33_4)
+  )
+
+class(aMaizingBL_risks$f33_4)
+```
+
+```{r}
+class(aMaizingBL_risks$f33_5)
+
+sort(unique(aMaizingBL_risks$f33_5), na.last = TRUE)
+
+```
+
+```{r}
+aMaizingBL_risks <- aMaizingBL_risks %>%
+  mutate(
+    f33_5 = as.integer(f33_5)
+  )
+
+class(aMaizingBL_risks$f33_5)
+```
+
+```{r}
+class(aMaizingBL_risks$f33_6)
+
+sort(unique(aMaizingBL_risks$f33_6), na.last = TRUE)
+
+```
+
+```{r}
+aMaizingBL_risks <- aMaizingBL_risks %>%
+  mutate(
+    f33_6 = as.integer(f33_6)
+  )
+
+class(aMaizingBL_risks$f33_6)
+```
+
+```{r}
+class(aMaizingBL_risks$f33_7)
+
+sort(unique(aMaizingBL_risks$f33_7), na.last = TRUE)
+
+```
+
+```{r}
+aMaizingBL_risks <- aMaizingBL_risks %>%
+  mutate(
+    f33_7 = as.integer(f33_7)
+  )
+
+class(aMaizingBL_risks$f33_7)
+```
+
+```{r}
+class(aMaizingBL_risks$f33_8)
+
+sort(unique(aMaizingBL_risks$f33_8), na.last = TRUE)
+
+```
+
+```{r}
+aMaizingBL_risks <- aMaizingBL_risks %>%
+  mutate(
+    f33_8 = as.integer(f33_8)
+  )
+
+class(aMaizingBL_risks$f33_8)
+```
+
+```{r}
+class(aMaizingBL_risks$f33_9)
+
+sort(unique(aMaizingBL_risks$f33_9), na.last = TRUE)
+
+```
+
+```{r}
+aMaizingBL_risks <- aMaizingBL_risks %>%
+  mutate(
+    f33_9 = as.integer(f33_9)
+  )
+
+class(aMaizingBL_risks$f33_9)
+```
+
+```{r}
+class(aMaizingBL_risks$f33_10)
+
+sort(unique(aMaizingBL_risks$f33_10), na.last = TRUE)
+
+```
+
+```{r}
+aMaizingBL_risks <- aMaizingBL_risks %>%
+  mutate(
+    f33_10 = as.integer(f33_10)
+  )
+
+class(aMaizingBL_risks$f33_10)
+```
+
+```{r}
+class(aMaizingBL_risks$f33_11)
+
+sort(unique(aMaizingBL_risks$f33_11), na.last = TRUE)
+
+```
+
+```{r}
+aMaizingBL_risks <- aMaizingBL_risks %>%
+  mutate(
+    f33_11 = as.integer(f33_11)
+  )
+
+class(aMaizingBL_risks$f33_11)
+```
+
+```{r}
+class(aMaizingBL_risks$f33_12)
+
+sort(unique(aMaizingBL_risks$f33_12), na.last = TRUE)
+
+```
+
+```{r}
+aMaizingBL_risks <- aMaizingBL_risks %>%
+  mutate(
+    f33_12 = as.integer(f33_12)
+  )
+
+class(aMaizingBL_risks$f33_12)
+```
+
+```{r}
+class(aMaizingBL_risks$f33_13)
+
+sort(unique(aMaizingBL_risks$f33_13), na.last = TRUE)
+
+```
+
+```{r}
+aMaizingBL_risks <- aMaizingBL_risks %>%
+  mutate(
+    f33_13 = as.integer(f33_13)
+  )
+
+class(aMaizingBL_risks$f33_13)
+```
+
+```{r}
+class(aMaizingBL_risks$f33_14)
+
+sort(unique(aMaizingBL_risks$f33_14), na.last = TRUE)
+
+```
+
+```{r}
+aMaizingBL_risks <- aMaizingBL_risks %>%
+  mutate(
+    f33_14 = as.integer(f33_14)
+  )
+
+class(aMaizingBL_risks$f33_14)
+```
+
+```{r}
+class(aMaizingBL_risks$f33_15)
+
+sort(unique(aMaizingBL_risks$f33_15), na.last = TRUE)
+
+```
+
+```{r}
+aMaizingBL_risks <- aMaizingBL_risks %>%
+  mutate(
+    f33_15 = as.integer(f33_15)
+  )
+
+class(aMaizingBL_risks$f33_15)
+```
+
+```{r}
+class(aMaizingBL_risks$f33_16)
+
+sort(unique(aMaizingBL_risks$f33_16), na.last = TRUE)
+
+```
+
+```{r}
+aMaizingBL_risks <- aMaizingBL_risks %>%
+  mutate(
+    f33_16 = as.integer(f33_16)
+  )
+
+class(aMaizingBL_risks$f33_16)
+```
+
+```{r}
+class(aMaizingBL_risks$f33_17)
+
+sort(unique(aMaizingBL_risks$f33_17), na.last = TRUE)
+
+```
+
+```{r}
+aMaizingBL_risks <- aMaizingBL_risks %>%
+  mutate(
+    f33_17 = as.integer(f33_17)
+  )
+
+class(aMaizingBL_risks$f33_17)
+```
+
+```{r}
+class(aMaizingBL_risks$f33_18)
+
+sort(unique(aMaizingBL_risks$f33_18), na.last = TRUE)
+
+```
+
+```{r}
+aMaizingBL_risks <- aMaizingBL_risks %>%
+  mutate(
+    f33_18 = as.integer(f33_18)
+  )
+
+class(aMaizingBL_risks$f33_18)
+```
+
+```{r}
+class(aMaizingBL_risks$f33__222)
+
+sort(unique(aMaizingBL_risks$f33__222), na.last = TRUE)
+
+```
+
+```{r}
+aMaizingBL_risks <- aMaizingBL_risks %>%
+  mutate(
+    f33__222 = as.integer(f33__222)
+  )
+
+class(aMaizingBL_risks$f33__222)
+```
+
+```{r}
+class(aMaizingBL_risks$f33_sp)
+
+#sort(unique(aMaizingBL_risks$f33_sp), na.last = TRUE)
+
+# Text data; not cleaned
+
+```
+
+```{r}
+
+column_labels <- c(
+
+  riskindex1 = "Climatic/production risk repeat iteration/index",
+  riskindex2 = "Climatic/production risk level/category selected",
+  riskname = "Climatic/production risk corresponding to riskindex2 value",
+  f31 = "Frequency of occurrence of riskname",
+  f31_reversed = "Reverse-coded frequency of occurrence of riskname",
+  f32 = "How severe was the damage to the cname (crop name) harvested for the previous season due to riskname?",
+  f33 = "Coping strategy used to deal with the loss caused by riskname?",
+  f33_1 = "Nothing",
+  f33_2 = "Borrow money",
+  f33_3 = "Use cash/savings",
+  f33_4 = "Use Insurance",
+  f33_5 = "Sell stocks of food/crops",
+  f33_6 = "Sell animals/farmland/ assets",
+  f33_7 = "Invest less in agriculture",
+  f33_8 = "Invest less in other businesses/activities",
+  f33_9 = "Reduce food expenditure",
+  f33_10 = "Reduce non-food expenditures",
+  f33_11 = "Postpone expenditures",
+  f33_12 = "Work more hours / seek employment",
+  f33_13 = "Send children to relatives or friends",
+  f33_14 = "Rely on gifts/assistance from friends or relatives",
+  f33_15 = "Seek religious/spiritual help / pray",
+  f33_16 = "Get help from an NGO",
+  f33_17 = "Through savings/credit group",
+  f33_18 = "Increased Cost of production",
+  f33__222 = "Other (specify)",
+  f33_sp = "Please specify the Coping Strategy",
+  PARENT_KEY = "Parent key",
+  KEY = "Key",
+  `SET-OF-rp_risk` = "Climate/production risk repeat group ID"
+
+)
+
+```
+
+```{r}
+
+# Rename columns with characters not supported by stata
+
+aMaizingBL_risks <- aMaizingBL_risks %>%
+  
+  rename(SET_OF_rp_risk = `SET-OF-rp_risk`
+    
+         )
+
+```
+
+```{r}
+#names(aMaizingBL_risks)
+
+aMaizingBL_risks <- aMaizingBL_risks %>%
+  select(1:4, 30, 5:29) %>%
+  set_variable_labels(.labels = column_labels)
+
+names(aMaizingBL_risks)
+```
+
+Using the function View() to open the new data in a spreadsheet reveals the column names and labels.
+
+```{r}
+
+#View(aMaizingBL_plot_level)
+
+```
+
+## Generate a data dictionary
+
+```{r}
+# Data dictionary
+
+aMaizingBL_risks_dict <- look_for(aMaizingBL_risks, labels = TRUE, values = TRUE) %>%
+  dplyr::select(-c(missing, value_labels))
+
+  gt(aMaizingBL_risks_dict)
+
+```
+
+## Export data dictionary to CSV
+
+```{r}
+
+readr::write_csv(aMaizingBL_risks_dict, "aMaizingBL_risks_dict.csv")
+
+```
+
+## Export data to CSV
+
+```{r}
+
+readr::write_csv(aMaizingBL_risks, "aMaizingBL_risks.csv")
+
+```
+
+## Save as R data
+
+```{r}
+
+save(aMaizingBL_risks, file = "aMaizingBL_risks.RData")
+```
+
+## Export data to SPSS
+
+```{r}
+
+write.foreign(aMaizingBL_risks, "aMaizingBL_risks.sav", "aMaizingBL_risks", package = "SPSS")
+
+```
+
+## Export data to STATA
+
+```{r}
+
+write_dta(aMaizingBL_risks, "aMaizingBL_risks.dta")
+
+```
